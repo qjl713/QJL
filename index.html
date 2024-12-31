@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乔嘉亮的新年祝福</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(
+                45deg,
+                #ff69b4 0%,
+                #ff1493 50%,
+                #dc143c 100%
+            );
+            background-size: cover;
+            animation: gradientMove 15s ease infinite;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .greeting {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 3em;
+            font-family: 'Microsoft YaHei', sans-serif;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            z-index: 100;
+        }
+        /* 音乐控制按钮样式 */
+        .music-control {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            z-index: 1001;
+        }
+        
+        .music-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff0000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .music-icon {
+            font-size: 20px;
+        }
+        
+        .music-btn.playing .music-icon {
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* 倒计时样式 */
+        .countdown {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3),
+                        inset 0 0 15px rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 添加炫光效果 */
+        .countdown::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .countdown-title {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #ff0000;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff0000; }
+            to { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff0000; }
+        }
+        
+        .countdown-time {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        
+        .countdown-time span {
+            display: inline-block;
+            background: linear-gradient(
+                145deg,
+                rgba(255, 255, 255, 0.1),
+                rgba(255, 255, 255, 0.05)
+            );
+            backdrop-filter: blur(5px);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            margin: 0 0.5rem;
+            min-width: 60px;
+            position: relative;
+            transform-style: preserve-3d;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3),
+                        inset 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .countdown-time span:hover {
+            transform: translateZ(20px) rotateX(10deg);
+        }
+        
+        .countdown-time span::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.4em;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        @keyframes flip {
+            0% { transform: rotateX(0) translateZ(0); }
+            50% { transform: rotateX(180deg) translateZ(50px); }
+            100% { transform: rotateX(360deg) translateZ(0); }
+        }
+        
+        .countdown-time span.changed {
+            animation: flip 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .new-year-wish {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+        /* 背景动画效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(125deg, 
+                rgba(255, 0, 0, 0.5),
+                rgba(255, 77, 77, 0.5),
+                rgba(255, 153, 153, 0.5),
+                rgba(255, 77, 77, 0.5),
+                rgba(255, 0, 0, 0.5)
+            );
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease-in-out infinite;
+            filter: brightness(0.8) contrast(1.2);
+            z-index: -1;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" loop>
+        <source src="music/new-year.ncm" type="audio/ncm">
+    </audio>
+    <div class="music-control">
+        <button id="musicToggle" class="music-btn">
+            <span class="music-icon">🎵</span>
+        </button>
+    </div>
+    <div class="greeting">
+        <div class="countdown">
+            <div class="countdown-title">距离新年还有</div>
+            <div class="countdown-time">
+                <span id="days" data-label="天">00</span>
+                <span id="hours" data-label="时">00</span>
+                <span id="minutes" data-label="分">00</span>
+                <span id="seconds" data-label="秒">00</span>
+            </div>
+        </div>
+    </div>
+    <canvas id="fireworks"></canvas>
+    <script src="fireworks.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const music = document.getElementById('bgMusic');
+            const musicBtn = document.getElementById('musicToggle');
+            
+            // 检查是否正在播放音乐
+            const isPlaying = localStorage.getItem('musicPlaying') === 'true';
+            if (isPlaying) {
+                music.play();
+                musicBtn.classList.add('playing');
+            }
+            
+            // 添加点击跳转功能
+            document.addEventListener('click', function(e) {
+                // 如果点击的不是音乐控制按钮，就跳转
+                if (!e.target.closest('.music-control')) {
+                    // 保存当前音乐状态
+                    localStorage.setItem('musicPlaying', !music.paused);
+                    window.location.href = 'greeting.html';
+                }
+            });
+            
+            // 倒计时功能
+            function updateCountdown() {
+                const now = new Date();
+                const newYear = new Date(2025, 1-1, 1);
+                const diff = newYear - now;
+                
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    // 更新数字时添加翻转动画
+                    function updateElement(id, value) {
+                        const element = document.getElementById(id);
+                        const newValue = String(value).padStart(2, '0');
+                        if (element.textContent !== newValue) {
+                            element.classList.remove('changed');
+                            void element.offsetWidth; // 触发重排以重启动画
+                            element.classList.add('changed');
+                            element.textContent = newValue;
+                        }
+                    }
+                    
+                    updateElement('days', days);
+                    updateElement('hours', hours);
+                    updateElement('minutes', minutes);
+                    updateElement('seconds', seconds);
+                } else {
+                    window.location.href = 'greeting.html';
+                }
+            }
+            
+            // 初始更新
+            updateCountdown();
+            // 每秒更新一次
+            setInterval(updateCountdown, 1000);
+            
+            music.addEventListener('error', function() {
+                console.error('音频文件加载失败');
+                musicBtn.style.opacity = '0.5';
+                musicBtn.title = '音频加载失败';
+            });
+            
+            musicBtn.addEventListener('click', function() {
+                if (music.paused) {
+                    music.play();
+                    musicBtn.classList.add('playing');
+                    localStorage.setItem('musicPlaying', 'true');
+                } else {
+                    music.pause();
+                    musicBtn.classList.remove('playing');
+                    localStorage.setItem('musicPlaying', 'false');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

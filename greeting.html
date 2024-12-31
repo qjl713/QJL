@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乔嘉亮的新年祝福</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(
+                45deg,
+                #e064a2 0%,
+                #ff1493 50%,
+                #dc143c 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientMove 15s ease infinite;
+        }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+            100% { background-position: 0% center; }
+        }
+        
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .greeting {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #e26a6a;
+            font-size: 3em;
+            font-family: 'Microsoft YaHei', sans-serif;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(234, 40, 98, 0.5);
+            z-index: 100;
+        }
+        .new-year-wish {
+            background: rgb(255, 255, 255);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            animation: fadeIn 2s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 音乐控制按钮样式 */
+        .music-control {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            z-index: 1001;
+        }
+        .music-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff0000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+        .music-icon {
+            font-size: 20px;
+        }
+        .music-btn.playing .music-icon {
+            animation: rotate 3s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* 文字逐个显示的动画 */
+        .typing-text {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: typeIn 0.5s ease-out forwards;
+            background: linear-gradient(45deg, #ff6b6b, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% auto;
+            animation: 
+                typeIn 0.5s ease-out forwards,
+                gradient 3s linear infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        @keyframes typeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" loop>
+        <source src="music/new-year.ncm" type="audio/ncm">
+    </audio>
+    <div class="music-control">
+        <button id="musicToggle" class="music-btn">
+            <span class="music-icon">🎵</span>
+        </button>
+    </div>
+    <div class="greeting">
+        <div class="new-year-wish">
+            <h1 style="font-size: 2.4em; color: #ff0000; margin-bottom: 1rem;">新年快乐！</h1>
+            <p id="greetingText" style="font-size: 0.9em; line-height: 1.8;"></p>
+        </div>
+    </div>
+    <canvas id="fireworks"></canvas>
+    <script src="fireworks.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化烟花
+            const fireworks = new Firework(document.getElementById('fireworks'));
+            
+            // 创建多个烟花的函数
+            function createMultipleFireworks() {
+                const count = Math.floor(Math.random() * 4) + 8; // 8-11个烟花
+                for(let i = 0; i < count; i++) {
+                    const x = Math.random() * window.innerWidth;
+                    const y = window.innerHeight * (0.2 + Math.random() * 0.6); // 扩大高度范围
+                    setTimeout(() => {
+                        fireworks.createFirework(x, y);
+                    }, i * 200); // 增加发射间隔
+                }
+            }
+            
+            // 定期创建烟花
+            setInterval(createMultipleFireworks, 4000); // 增加发射组之间的间隔
+            
+            // 初始立即发射一组烟花
+            createMultipleFireworks();
+            
+            // 点击时创建烟花
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.music-control') && !e.target.closest('.new-year-wish')) {
+                    fireworks.createFirework(e.clientX, e.clientY);
+                }
+            });
+
+            const music = document.getElementById('bgMusic');
+            
+            // 检查是否正在播放音乐
+            const isPlaying = localStorage.getItem('musicPlaying') === 'true';
+            if (isPlaying) {
+                music.play();
+                musicBtn.classList.add('playing');
+            }
+            
+            music.addEventListener('error', function() {
+                console.error('音频文件加载失败');
+                musicBtn.style.opacity = '0.5';
+                musicBtn.title = '音频加载失败';
+            });
+            
+            musicBtn.addEventListener('click', function() {
+                if (music.paused) {
+                    music.play();
+                    musicBtn.classList.add('playing');
+                    localStorage.setItem('musicPlaying', 'true');
+                } else {
+                    music.pause();
+                    musicBtn.classList.remove('playing');
+                    localStorage.setItem('musicPlaying', 'false');
+                }
+            });
+        });
+
+        // 祝福语文本
+        const greetingText = `龙隐苍穹传喜报，
+蛇临华夏送吉祥。
+旧年的故事珍藏心底，
+新年的乐章已然奏响。
+值此蛇年之际祝你拥有"灵蛇出洞"的勇气
+探寻生活宝藏，收获满仓美好，
+跨年乐无边，年年胜今朝！
+-- 乔嘉亮敬上`;
+
+        function typeWriter() {
+            const textContainer = document.getElementById('greetingText');
+            const lines = greetingText.split('\n');
+            let lineIndex = 0;
+            let charIndex = 0;
+
+            function typeLine() {
+                if (lineIndex < lines.length) {
+                    if (charIndex < lines[lineIndex].length) {
+                        const char = document.createElement('span');
+                        char.className = 'typing-text';
+                        char.style.animationDelay = `${(lineIndex * 50 + charIndex * 100)}ms`;
+                        char.textContent = lines[lineIndex][charIndex];
+                        textContainer.appendChild(char);
+                        charIndex++;
+                        setTimeout(typeLine, 100);
+                    } else {
+                        textContainer.appendChild(document.createElement('br'));
+                        lineIndex++;
+                        charIndex = 0;
+                        setTimeout(typeLine, 500); // 每行之间的延迟
+                    }
+                }
+            }
+
+            typeLine();
+        }
+
+        // 页面加载后开始打字效果
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(typeWriter, 1000); // 等待1秒后开始打字效果
+        });
+    </script>
+</body>
+</html> 
